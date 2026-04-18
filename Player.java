@@ -16,11 +16,17 @@ public class Player extends Actor
      int velocityY = 0;
      int squash = 0;
      boolean notJumped = true;
-     boolean playerLoco = true;
+     private static boolean playerLoco = true;
      boolean facingRight = true;
      
-     
-         
+     GreenfootSound jump = new GreenfootSound("sfx_jump.mp3");
+     GreenfootSound hitCard = new GreenfootSound("mortslap.mp3");
+         public static void disableLoco() {
+             playerLoco = false;
+         }
+         public static void enableLoco() {
+             playerLoco = true;
+         }
     public void act()
     {
         getImage().scale(100, 100);
@@ -29,6 +35,8 @@ public class Player extends Actor
         if (playerLoco) {
         // jump, but check if player is airborne
         if ((Greenfoot.isKeyDown("W") || Greenfoot.isKeyDown("Space")) && notJumped) {
+            jump.stop();
+            jump.play();
             velocityY = -31;
            squash = -26;
         }
@@ -60,6 +68,7 @@ public class Player extends Actor
             
             if ((Math.abs(velocityX) == 1)) {
                 velocityX = 0;
+                
                 setImage((facingRight) ? "player-1.png" : "player-1L.png");
             } else {
                 if (velocityX < 0) {
@@ -74,6 +83,7 @@ public class Player extends Actor
         if (velocityY != 0) {
             // if gravity would put player below 400, set velY to 0 & set location to 400
             if (!((getY() + (velocityY / 2) >= 425))) {
+                
                 velocityY += 2;
                 setLocation(getX(), (getY() + (velocityY / 2)));
                 notJumped = false;
@@ -101,7 +111,9 @@ public class Player extends Actor
             }
         }
     // if touching a card, reverse Y velocity
-    if (isTouching(SelectionCard.class)) {
+    if (isTouching(SelectionCard.class) && (Dealer.getGameState() == 3)) {
+        hitCard.stop();
+        hitCard.play();
         velocityY *= -1;
     }
     }

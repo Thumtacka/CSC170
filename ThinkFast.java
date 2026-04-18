@@ -8,7 +8,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class ThinkFast extends World
 {
-
+    
     /**
      * Constructor for objects of class ThinkFast.
      * 
@@ -19,6 +19,7 @@ public class ThinkFast extends World
         super(800, 600, 1); 
         //setBackground("patternbghalloween.png");
         showText("temp :D (WASD or Space & Arrow Keys)", 400, 300);
+    
         prepare();
     }
     
@@ -36,14 +37,16 @@ public class ThinkFast extends World
         RandomCard randomCard = new RandomCard();
         addObject(randomCard,700,300);
         SelectionCard selectionCard = new SelectionCard();
-        addObject(selectionCard,200,220);
+        addObject(selectionCard,250,220);
         SelectionCard selectionCard2 = new SelectionCard();
-        addObject(selectionCard2,310,220);
+        addObject(selectionCard2,400,220);
         SelectionCard selectionCard3 = new SelectionCard();
-        addObject(selectionCard3,420,220);
+        addObject(selectionCard3,550,220);
         SelectionCard selectionCard4 = new SelectionCard();
-        addObject(selectionCard4,530,220);
+        addObject(selectionCard4,700,220);
         SelectionCard selectionCard5 = new SelectionCard();
-        addObject(selectionCard5,90,220);
+        addObject(selectionCard5,100,220);
+        Score score = new Score();
+        addObject(score,61,30);
     }
 }
