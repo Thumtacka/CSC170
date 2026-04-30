@@ -12,39 +12,90 @@ public class Dealer extends Actor
      * Act - do whatever the dealer wants to do. This method is called whenever
      * the 'Act' or 'Run' button gets pressed in the environment.
      */
-    //variables
-       GreenfootSound music = new GreenfootSound("minigameloop.mp3");
-       GreenfootSound show = new GreenfootSound("summonsound.wav");
-       GreenfootSound tick = new GreenfootSound("WarTimer.mp3");
-       GreenfootSound gameOver = new GreenfootSound("gameoveryeah.mp3");
-       // v 0 for initial start, 3 for guessing period. oops.
-       private static int gameState = 0;
+        //sounds
+       private GreenfootSound music = new GreenfootSound("minigame.mp3");
+       private GreenfootSound show = new GreenfootSound("showcard.mp3");
+       private GreenfootSound tick = new GreenfootSound("WarTimer.mp3");
+       private GreenfootSound gameOver = new GreenfootSound("gameoveryeah.mp3");
+       private GreenfootSound angerWhistle = new GreenfootSound("angry.mp3");
+       private GreenfootSound musicPhase2 = new GreenfootSound("thousandmarch.mp3");
+       private GreenfootSound youWin = new GreenfootSound("win.mp3");
+       // v used for pretty much all game logic
        private static int animState = 0;
-       int squash = 0;
-       int timer = 180;
-       int specialTimer;
+       // v other misc things
+       private int squash = 0;
+       private static int timer = 180;
+       private int specialTimer;
+       private static int speedUpVal;
        private static boolean takeAction = false;
-       boolean keepCounting = true;
-       boolean keepCountingSpecial = false;
-       boolean doMusic = true;
+       private static boolean keepCounting = true;
+       private boolean keepCountingSpecial = false;
+       private static boolean doMusic = false;
+       private static boolean isPhase2 = false;
        //methods
-       public static int getGameState() {
-           return gameState;
+       
+       public static int getAnimState() {
+           return animState;
        }
+       
        public static void setAnimState(int x) {
            animState = x;
            takeAction = true;
        }
        
+       public static int getSpeedUp() {
+           return speedUpVal;
+       }
+       public static void incrementSpeedUp() {
+           if (speedUpVal <= 5) {
+               speedUpVal++;
+           }
+       }
+       public static void setSpeedUp(int x) {
+           speedUpVal = x;
+       }
+       
+       public static int getTimer() {
+           return timer;
+       }
+       
+       public static boolean phase2Check() {
+           return isPhase2;
+       }
+       
+       public static void stopCounting() {
+           keepCounting = false;
+       }
+    
+       public static void startCounting() {
+           keepCounting = true;
+       }
+       
+       public static void startMusic() {
+           doMusic = true;
+       }
+       public static void stopMusic() {
+           doMusic = false;
+       }
+       
     public void act()
     {
+        show.setVolume(60);
+        music.setVolume(50);
+        musicPhase2.setVolume(50);
+        tick.setVolume(60);
+        gameOver.setVolume(50);
         getImage().scale(100, 100);
         // v debug
-        //getWorld().showText(("Timer: " + (timer)), 530, 50);
+        //getWorld().showText(("Timer: " + (speedUpVal)), 530, 50);
         //getWorld().showText(("specialTimer " + (specialTimer)), 530, 100);
         //getWorld().showText(("animState: " + (animState)), 530, 150);
         if (doMusic) {
-            music.playLoop();
+            if (!isPhase2) {
+                music.playLoop();
+            } else {
+                musicPhase2.playLoop();
+            }
         }
         //timers
         if ((timer != 0) && keepCounting) {
@@ -60,82 +111,163 @@ public class Dealer extends Actor
             takeAction = true;
         }
         // all the actions. coulda done in a switch statement technically but it only like when I do if-else statements >:(
-        if ((animState == 0) && takeAction) {
-            setImage("dealerN-1.png");
-            timer = 180;
-            Player.enableLoco();
-            takeAction = false;
-        }
-        //anticipation
-        if ((animState == 2) && takeAction) {
-            setImage("dealerN-2.png");
-            squash = 20;
-            RandomCard.randomize();
-            takeAction = false;
-        }
-        //show random card
-        if ((animState == 3) && takeAction) {
-            setImage("dealerN-3.png");
-            show.play();
-            RandomCard.show();
-            squash = -20;
-            takeAction = false;
-            timer = 120;
-        }
-        //grace period
-        if ((animState == 4) && takeAction) {
-            Player.disableLoco();
-            RandomCard.hide();
-            setImage("dealerN-1.png");
-            squash = 14;
-            getWorld().showText("Don't forget it!", 400, 250);
-            takeAction = false;
-            timer = 180;
-        }
-        //urge player to select card
-        if ((animState == 5)) {
-            if (takeAction) {
-            keepCounting = false;
-            gameState = 3;
-            getWorld().showText("Now, which one was it?", 400, 250);
-            specialTimer = 600;
-            Player.enableLoco();
-            takeAction = false;
+        switch (animState) {
+            case 0:
+                //preparation
+                if (takeAction) {
+                setImage("dealerN-1.png");
+                timer = 180;
+                Player.enableLoco();
+                takeAction = false;
             }
-        }
-        //behavioral states for correct answers
-        if ((animState == 6) && takeAction) {
-            Player.disableLoco();
-            keepCounting = true;
-            setImage("dealerN-W.png");
-            getWorld().showText("", 400, 250);
-            Score.addScore();
-            takeAction = false;
-            timer = 120;
-        }
-        if ((animState == 7) && takeAction) {
-            Player.enableLoco();
-            setImage("dealerN-1.png");
-            animState = 0;
-            gameState = 0;
-            takeAction = false;
-        }
-        //behavioral states for incorrect answers
-        if ((animState == 8) && takeAction) {
-            Player.disableLoco();
-            setImage("dealerN-L.png");
-            getWorld().showText("", 400, 250);
-            keepCounting = true;
-            timer = 120;
-            takeAction = false;
-        }
-        if ((animState == 9) && takeAction) {
-            doMusic = false;
-            music.stop();
-            gameOver.play();
-            getWorld().showText("GAME OVER", 400, 250);
-            keepCounting = false;
-            takeAction = false;
+                break;
+            case 2:
+                //anticipation
+                if (takeAction) {
+                    setImage("dealerN-2.png");
+                    squash = 20;
+                    takeAction = false;
+                }
+                break;
+            case 3:
+                //show correct card
+                if (takeAction) {
+                    setImage("dealerN-3.png");
+                    show.play();
+                    squash = -20;
+                    timer = 120 - (10 * speedUpVal);
+                    takeAction = false;
+                }
+                break;
+            case 4:
+                //hide correct card
+                if (takeAction) {
+                    Player.disableLoco();
+                    setImage("dealerN-1.png");
+                    squash = 14;
+                    getWorld().showText("Don't forget it!", 400, 250);
+                    takeAction = false;
+                    timer = 180;
+                }
+                break;
+            case 5:
+                //selection phase
+                CorrectCard.show();
+                if (takeAction) {
+                    keepCounting = false;
+                    specialTimer = 600 - (speedUpVal * 60);
+                    Player.enableLoco();
+                    takeAction = false;
+                }
+                break;
+            case 6:
+                //successful guess part1
+                if (takeAction) {
+                    Player.disableLoco();
+                    keepCounting = true;
+                    setImage("dealerN-W.png");
+                    getWorld().showText("", 400, 250);
+                    Score.addScore();
+                    takeAction = false;
+                    timer = 130 - (speedUpVal * 10 + 10);
+                }
+                break;
+            case 7:
+                //successful guess part2, reset everything
+                if (takeAction) {
+                    Player.enableLoco();
+                    setImage("dealerN-1.png");
+                    animState = 0;
+                    
+                    takeAction = false;
+                }
+                break;
+            case 8:
+                //unsuccessful guess part1
+                if (takeAction) {
+                    Player.disableLoco();
+                    setImage("dealerN-L.png");
+                    getWorld().showText("", 400, 250);
+                    keepCounting = true;
+                    timer = 120;
+                    takeAction = false;
+                }
+                break;
+            case 9:
+                //unsuccessful guess part2, game over
+                if (takeAction) {
+                    doMusic = false;
+                    music.stop();
+                    musicPhase2.stop();
+                    gameOver.play();
+                    getWorld().showText("GAME OVER", 400, 250);
+                    keepCounting = false;
+                    takeAction = false;
+                }
+                break;
+            case 10:
+                if (takeAction) {
+                    Player.disableLoco();
+                    keepCounting = true;
+                    setImage("dealerN-W.png");
+                    getWorld().showText("", 400, 250);
+                    Score.addScore();
+                    NewBg.activate();
+                    music.stop();
+                    musicPhase2.stop();
+                    doMusic = false;
+                    takeAction = false;
+                    timer = 140;
+                }
+                break;
+            case 11:
+                if (takeAction) {
+                    Player.enableLoco();
+                    setImage("dealerN-A2.png");
+                    angerWhistle.play();
+                    timer = 220;
+                    takeAction = false;
+                }
+                if (timer % 5 == 0 && squash < 20) {
+                    squash += 5;
+                }
+                break;
+            case 12:
+                if (takeAction) {
+                    Player.enableLoco();
+                    setImage("dealerN-1.png");
+                    isPhase2 = true;
+                    doMusic = true;
+                    speedUpVal = 6;
+                    animState = 0;
+                    takeAction = false;
+                }
+                break;
+            case 13:
+                if (takeAction) {
+                    Player.disableLoco();
+                    keepCounting = true;
+                    setImage("dealerN-W.png");
+                    getWorld().showText("", 400, 250);
+                    Score.addScore();
+                    music.stop();
+                    musicPhase2.stop();
+                    doMusic = false;
+                    takeAction = false;
+                    timer = 140;
+                }
+            case 14:
+                if (takeAction) {
+                    doMusic = false;
+                    music.stop();
+                    musicPhase2.stop();
+                    youWin.play();
+                    getWorld().showText("YOU WON!", 400, 250);
+                    keepCounting = false;
+                    takeAction = false;
+                }
+            default:
+                break;
         }
         //squash n stretch
         if (squash != 0) {

@@ -18,7 +18,7 @@ public class ThinkFast extends World
         // Create a new world with 600x400 cells with a cell size of 1x1 pixels.
         super(800, 600, 1); 
         //setBackground("patternbghalloween.png");
-        showText("temp :D (WASD or Space & Arrow Keys)", 400, 300);
+        //showText("temp :D (WASD or Space & Arrow Keys)", 400, 300);
     
         prepare();
     }
@@ -29,24 +29,48 @@ public class ThinkFast extends World
      */
     private void prepare()
     {
+        NewBg newBg = new NewBg();
+        addObject(newBg,400,300);
+        
         Dealer theDealer = new Dealer();
         addObject(theDealer,700,417);
+
+        SelectionCard selectionCard = new SelectionCard(1);
+        addObject(selectionCard,250,220);
+
+        SelectionCard selectionCard2 = new SelectionCard(2);
+        addObject(selectionCard2,400,220);
+
+        SelectionCard selectionCard3 = new SelectionCard(3);
+        addObject(selectionCard3,550,220);
+
+        SelectionCard selectionCard4 = new SelectionCard(4);
+        addObject(selectionCard4,700,220);
+
+        Cover cover = new Cover();
+        addObject(cover,400,300);
+
         Player thePlayer = new Player();
         addObject(thePlayer,100,425);
 
-        RandomCard randomCard = new RandomCard();
-        addObject(randomCard,700,300);
-        SelectionCard selectionCard = new SelectionCard();
-        addObject(selectionCard,250,220);
-        SelectionCard selectionCard2 = new SelectionCard();
-        addObject(selectionCard2,400,220);
-        SelectionCard selectionCard3 = new SelectionCard();
-        addObject(selectionCard3,550,220);
-        SelectionCard selectionCard4 = new SelectionCard();
-        addObject(selectionCard4,700,220);
-        SelectionCard selectionCard5 = new SelectionCard();
-        addObject(selectionCard5,100,220);
+        CorrectCard correctCard = new CorrectCard();
+        addObject(correctCard,100,220);
+
         Score score = new Score();
-        addObject(score,61,30);
+        addObject(score,70,30);
+
+        Jumpscare jumpscare = new Jumpscare();
+        addObject(jumpscare,400,300);
+        cover.setLocation(400,300);
+    }
+
+    public void started() {
+        Score.setScore(0);
+        Dealer.setAnimState(0);
+        Dealer.setSpeedUp(0);
+        Dealer.stopCounting();
+        Dealer.stopMusic();
+        Jumpscare.init();
+        Player.disableLoco();
     }
 }
